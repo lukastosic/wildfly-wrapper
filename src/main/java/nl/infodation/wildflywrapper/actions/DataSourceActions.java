@@ -1,4 +1,4 @@
-package nl.infodation.wildflywrapper.datasource;
+package nl.infodation.wildflywrapper.actions;
 
 import nl.infodation.wildflywrapper.common.*;
 
@@ -13,7 +13,9 @@ public class DataSourceActions
 	private String DB_USERNAME;
 	private String DB_PASSWORD;
 	
-	public DataSourceActions(String dbConnectionName, String dbJNDIName, String dbDriverName, String dbHost, String dbPort, String dbName, String dbUsername, String dbPassword)
+	private WildflyConnector wildfly;
+	
+	public DataSourceActions(String dbConnectionName, String dbJNDIName, String dbDriverName, String dbHost, String dbPort, String dbName, String dbUsername, String dbPassword, WildflyConnector wildflyConnector)
     {
         DB_CONNECTION_NAME = dbConnectionName;
         DB_JNDI_NAME = dbJNDIName;
@@ -23,9 +25,11 @@ public class DataSourceActions
         DB_NAME = dbName;
         DB_USERNAME = dbUsername;
         DB_PASSWORD = dbPassword;
+        
+        wildfly = wildflyConnector;
     }
 	
-	public boolean dataSourceNameExist(WildflyConnector wildfly)
+	public boolean dataSourceNameExist()
 	{
 		String command = "/subsystem=datasources/data-source="+DB_CONNECTION_NAME+":read-resource";
 		String response = wildfly.executeCLICommand(command);
@@ -36,7 +40,7 @@ public class DataSourceActions
 		return false;
 	}
 	
-	public boolean jndiNameExist(WildflyConnector wildfly)
+	public boolean jndiNameExist()
 	{
 		String command = "/subsystem=datasources:read-resource(recursive=true)";
 		String response = wildfly.executeCLICommand(command);
@@ -47,7 +51,7 @@ public class DataSourceActions
 		return false;
 	}
 	
-	public boolean jdbcDriverExist(WildflyConnector wildfly)
+	public boolean jdbcDriverExist()
 	{
 		String command = "/subsystem=datasources/jdbc-driver="+DB_DRIVER_NAME+":read-resource(recursive=true)";
 		String response = wildfly.executeCLICommand(command);
@@ -58,12 +62,12 @@ public class DataSourceActions
 		return false;
 	}
 	
-	public boolean createJDBCDataConnection(WildflyConnector wildfly)
+	public boolean createJDBCDataConnection()
 	{
 		String dbUrl = "jdbc:mysql://"+DB_HOST+":"+DB_PORT+"/"+DB_NAME;
 		try
 		{
-			if(!dataSourceNameExist(wildfly) && !jndiNameExist(wildfly) && jdbcDriverExist(wildfly))
+			if(!dataSourceNameExist() && !jndiNameExist() && jdbcDriverExist())
 			{
 				String command = "data-source add --jndi-name="+DB_JNDI_NAME+" --name="+DB_CONNECTION_NAME+
 						" --connection-url="+dbUrl+" --driver-name="+DB_DRIVER_NAME+" --user-name="+DB_USERNAME+" --password="+DB_PASSWORD;
@@ -83,7 +87,7 @@ public class DataSourceActions
 		return false;
 	}
 	
-	public boolean removeJDBCDataSource(WildflyConnector wildfly)
+	public boolean removeJDBCDataSource()
 	{
 		String command = "data-source remove --name=mariaDS";
 		try
