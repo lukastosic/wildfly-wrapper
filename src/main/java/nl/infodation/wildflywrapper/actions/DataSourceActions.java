@@ -62,8 +62,10 @@ public class DataSourceActions
 		return false;
 	}
 	
-	public boolean createJDBCDataConnection()
+	public ActionResult createJDBCDataConnection()
 	{
+		ActionResult ar = new ActionResult();
+		
 		String dbUrl = "jdbc:mysql://"+DB_HOST+":"+DB_PORT+"/"+DB_NAME;
 		try
 		{
@@ -72,42 +74,73 @@ public class DataSourceActions
 				String command = "data-source add --jndi-name="+DB_JNDI_NAME+" --name="+DB_CONNECTION_NAME+
 						" --connection-url="+dbUrl+" --driver-name="+DB_DRIVER_NAME+" --user-name="+DB_USERNAME+" --password="+DB_PASSWORD;
 				
-				String response = wildfly.executeCLICommand(command);
-				if (response.indexOf("{\"outcome\" => \"success\"") >= 0)
+				ar.wildflyMessage = wildfly.executeCLICommand(command);
+				if (ar.wildflyMessage.indexOf("{\"outcome\" => \"success\"") >= 0)
 				{
-					return true;
+					ar.exceptionExist = false;
+					ar.resultMessage = "JDBC data source created";
+					ar.resultStatus = true;
+					return ar;
 				}
-				return false;
+				ar.exceptionExist = false;
+				ar.resultMessage = "JDBC data source NOT created";
+				ar.resultStatus = false;
+				return ar;
 			}
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			ar.setExceptionActionResult(false, e.getMessage());
 		}
-		return false;
+		return ar;
 	}
 	
-	public boolean removeJDBCDataSource()
+	public ActionResult removeJDBCDataSource()
 	{
+		ActionResult ar = new ActionResult();
+		
+		
 		String command = "data-source remove --name=mariaDS";
 		try
 		{
-			String response = wildfly.executeCLICommand(command);
-			if (response.indexOf("{\"outcome\" => \"success\"") >= 0)
+			ar.wildflyMessage = wildfly.executeCLICommand(command);
+			if (ar.wildflyMessage.indexOf("{\"outcome\" => \"success\"") >= 0)
 			{
-				if (response.indexOf("\"process-state\" => \"reload-required\"") >= 0)
+				if (ar.wildflyMessage.indexOf("\"process-state\" => \"reload-required\"") >= 0)
 				{
 					command = "reload";
-					response = wildfly.executeCLICommand(command);					
+					try
+					{
+						ar.wildflyMessage = wildfly.executeCLICommand(command);
+						ar.exceptionExist = false;
+						ar.resultMessage = "Data source removed and reloaded exexuted";
+						ar.resultStatus = true;
+					}
+					catch(Exception e)
+					{
+						ar.exceptionExist = true;
+						ar.resultMessage = "Data source removed, but reload failed. Exception details "+e.getMessage();
+						ar.resultStatus = true;
+					}
 				}
-				return true;
+				else
+				{
+					ar.resultMessage = "Data source removed, reload not necessary.";
+					ar.resultStatus = true;
+					ar.exceptionExist = false;
+				}
+				return ar;
 			}			
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			ar.resultMessage = e.getMessage();
+			ar.exceptionExist = true;
+			ar.resultStatus = false;
 		}
-		return false;
+		return ar;
 	}
 	
 	

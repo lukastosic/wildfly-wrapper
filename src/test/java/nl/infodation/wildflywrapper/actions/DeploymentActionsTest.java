@@ -14,8 +14,10 @@ public class DeploymentActionsTest {
 
 	private WildflyConnector wildfly;
     private DeploymentActions actions;
-    String appName = "actionbazaar.war";
-    String appPath = "D:\\SpringTools\\Workspace\\testing-javaee\\actionbazaar\\target\\actionbazaar.war";
+    
+    // Place some dummy war file that you want to test with
+    String appName = "test-deployment.war";
+    String appPath = "D:\\Workspace\\test-deployment.war";
     
     @Before
     public void PrepareForTest()

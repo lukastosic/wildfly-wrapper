@@ -21,6 +21,7 @@ public class CreateDataSourceTest
     @Before
     public void PrepareForTest()
     {
+    	// Update with values applicable to your testing environment    	
     	wildfly = new WildflyConnector("10.4.1.218", 9601, "admin", "password");
         actions = new DataSourceActions("mariaDS", "java:/MariaDBDS", "mysql", "10.4.1.218", "3306", "test", "root", "root", wildfly);
     }
@@ -29,18 +30,18 @@ public class CreateDataSourceTest
     @Test
     public void test_1_AddNewConnectionSuccess()
     {       	
-        assertEquals("Expected to create connection", true, actions.createJDBCDataConnection());        
+        assertEquals("Expected to create connection", true, actions.createJDBCDataConnection().resultStatus);        
     }
     
     @Test
     public void test_2_AddNewConnectionAlreadyExist()
     {
-    	assertEquals("Expected to fail on existing connection name", false, actions.createJDBCDataConnection());
+    	assertEquals("Expected to fail on existing connection name", false, actions.createJDBCDataConnection().resultStatus);
     }
     
     @Test
     public void test_3_RemoveExistingConnection()
     {
-    	assertEquals("Expected to remove existing connection", true, actions.removeJDBCDataSource());
+    	assertEquals("Expected to remove existing connection", true, actions.removeJDBCDataSource().resultStatus);
     }
 }
