@@ -49,7 +49,7 @@ Alternatively you can execute any custom `jboss cli` supported command.
 <dependency>
     <groupId>nl.infodation</groupId>
     <artifactId>wildflywrapper</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
