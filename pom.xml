@@ -4,7 +4,7 @@
 
   <groupId>nl.infodation</groupId>
   <artifactId>wildflywrapper</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <packaging>jar</packaging>
 
   <name>wildflydsinstaller</name>
@@ -155,5 +155,6 @@
   </issueManagement>
   <scm>
   	<url>https://bitbucket.org/infodation/wildfly-wrapper</url>
+  	<developerConnection>Luka Stosic</developerConnection>
   </scm>
 </project>
