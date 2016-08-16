@@ -16,38 +16,23 @@ public class DeploymentActionsTest {
     private DeploymentActions actions;
     
     // Place some dummy war file that you want to test with
-    String appName = "test-deployment.war";
-    String appPath = "D:\\Workspace\\test-deployment.war";
+    String appName = "authenticationserver.war";
+    String appPath = "C:\\temp\\" + appName;
     
     @Before
     public void PrepareForTest()
     {
-    	wildfly = new WildflyConnector("10.4.1.218", 9601, "admin", "password");
+    	wildfly = new WildflyConnector("localhost", 9990, "admin", "password");
         actions = new DeploymentActions(wildfly);
     }
   
     
     @Test
-    public void test_1_DeployFile()
+    public void test_DeployFile()
     {       	
         assertEquals("Expected to make deployment", true, actions.deploy(appPath).resultStatus);        
-    }
-    
-    @Test
-    public void test_2_CheckIfNameExists()
-    {
     	assertEquals("Check if name exist (already deployed)", true, actions.deploymentExist(appName).resultStatus);
-    }
-    
-    @Test
-    public void test_3_UndeployApp()
-    {
     	assertEquals("Expected to undeploy app ", true, actions.undeploy(appName).resultStatus);
-    }
-    
-    @Test
-    public void test_4_CheckForNameAfterUndeploy()
-    {
     	assertEquals("Check if name exist (undeployed)", false, actions.deploymentExist(appName).resultStatus);
     }
-}
+ }
