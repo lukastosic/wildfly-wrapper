@@ -34,4 +34,17 @@ public class ActionResult {
 		resultMessage = "ERROR";
 		exceptionExist = true;
 	}
+	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ActionResult [resultStatus=" + resultStatus + ", "
+				+ (resultMessage != null ? "resultMessage=" + resultMessage + ", " : "")
+				+ (wildflyMessage != null ? "wildflyMessage=" + wildflyMessage + ", " : "") + "exceptionExist="
+				+ exceptionExist + "]";
+	}
+
+
 }
