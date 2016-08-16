@@ -91,14 +91,7 @@ public class DataSourceActions {
 			ar.wildflyMessage = wildfly.executeCLICommand(command);
 			if (ar.wildflyMessage.indexOf("{\"outcome\" => \"success\"") >= 0) {
 				if (ar.wildflyMessage.indexOf("\"process-state\" => \"reload-required\"") >= 0) {
-					command = "reload";
-					try {
-						ar.wildflyMessage = wildfly.executeCLICommand(command);
-					} catch (Exception e) {
-						ar.resultMessage = "Data source removed, but reload failed due to " + e.getLocalizedMessage();
-						ar.resultStatus = true;
-						ar.ex =e;
-					}
+					wildfly.reload();
 				} else {
 					ar.resultMessage = "Data source removed, reload not necessary.";
 				}

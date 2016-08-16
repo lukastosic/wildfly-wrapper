@@ -4,7 +4,11 @@ import org.jboss.as.cli.CommandContext;
 import org.jboss.as.cli.scriptsupport.CLI;
 import org.jboss.dmr.ModelNode;
 
+import nl.infodation.wildflywrapper.actions.ActionResult;
+
 public class WildflyConnector {
+	
+	private static final long TIMEOUT_PERIOD = 60 * 1000; // 1 MINUTE
 
 	private String JBOSS_HOST;
 	private int JBOSS_ADMIN_PORT;
@@ -36,13 +40,54 @@ public class WildflyConnector {
 			jbossCLI.disconnect();
 		}
 	}
+	
+	/**
+	 * Tries to execute a read-only command.  
+	 * @return true when command could be executed.
+	 */
+	public boolean ping() {
+		String s = getWildFlyResponse(jbossCLI.cmd("/:read-attribute(name=launch-type)"));
+		if (s != null) {
+			// {"outcome" => "success","result" => "STANDALONE"} 
+			return s.contains("{\"outcome\" => \"success\")");
+		}
+		return false;
+	}
+	
+	public ActionResult reload() {
+		String command = "reload";
+		ActionResult ar = new ActionResult(true,"RELOADED", null);
+		try {
+			ar.wildflyMessage = executeCLICommand(command);
+		} catch (Exception e) {
+			ar.resultMessage = "Reload failed due to " + e.getLocalizedMessage();
+			ar.resultStatus = true;
+			ar.ex =e;
+			return ar;
+		}
+		long timeout = System.currentTimeMillis() + TIMEOUT_PERIOD;
+		while (!ping() && System.currentTimeMillis() < timeout) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// noop
+			}
+		}
+		if (System.currentTimeMillis() >= timeout) {
+			return new ActionResult(false, "Unable to ping wildfly " + JBOSS_HOST + ":" + JBOSS_ADMIN_PORT + " after 10 seconds. Reload failed", null);
+		}
+		return new ActionResult(true, "Reload successful", null);
+	}
+	
 
 	private synchronized boolean isConnected() {
 		if (jbossCLI != null) {
 			CommandContext ctx = jbossCLI.getCommandContext();
 			if (ctx != null) {
 				if (!ctx.isTerminated()) {
-					return true;
+					if (ping()) {
+						return true;
+					}
 				}
 			}
 		}
@@ -78,8 +123,11 @@ public class WildflyConnector {
 	 */
 	@Override
 	protected void finalize() throws Throwable {
-		disconnect();
+		try {
+			disconnect();
+		} catch (Throwable e) { // workaround for CLI disconnect bug
+			new RuntimeException("Failed to close connection",e).printStackTrace();
+		}
 		super.finalize();
 	}
-
 }
