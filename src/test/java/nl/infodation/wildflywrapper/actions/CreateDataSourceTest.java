@@ -22,8 +22,8 @@ public class CreateDataSourceTest
     public void PrepareForTest()
     {
     	// Update with values applicable to your testing environment    	
-    	wildfly = new WildflyConnector("10.4.1.218", 9601, "admin", "password");
-        actions = new DataSourceActions("mariaDS", "java:/MariaDBDS", "mysql", "10.4.1.218", "3306", "test", "root", "root", wildfly);
+    	wildfly = new WildflyConnector("localhost", 9990, "admin", "password");
+        actions = new DataSourceActions("mariaDS", "java:/MariaDBDS", "mysql", "localhost", "3306", "test", "efap", "efap", wildfly);
     }
   
     
